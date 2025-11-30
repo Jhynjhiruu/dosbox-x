@@ -71,7 +71,7 @@ case "$host_os" in
     HOST_VERSION=`sw_vers -productVersion | cut -d. -f1,2`
     major=`echo $HOST_VERSION | cut -d. -f1`
     minor=`echo $HOST_VERSION | cut -d. -f2`
-    
+
     version_num=`expr $major \* 100 + $minor`
 
     if test "$version_num" -lt 1015; then
@@ -220,7 +220,7 @@ dnl This is how the build script can specify a HX DOS extender target
 AH_TEMPLATE(C_HX_DOS,[Define to 1 to target HX DOS])
 AC_ARG_ENABLE(hx-dos,AC_HELP_STRING([--enable-hx-dos],[Enable HX target]),enable_hx=yes)
 
-dnl This is how the build script can use libopencow for win9x unicode 
+dnl This is how the build script can use libopencow for win9x unicode
 # AH_TEMPLATE(C_OPENCOW,[Define to 1 to enable opencow])
 AC_ARG_ENABLE(opencow,AC_HELP_STRING([--enable-opencow],[Enable OpenCOW]),enable_opencow=yes)
 
@@ -353,7 +353,7 @@ AC_CHECK_HEADER([mach/mach.h], [
 AC_CHECK_FUNC([mach_vm_remap],[AC_DEFINE(C_HAVE_MACH_VM_REMAP,1)])
 ])
 
-dnl Check for mprotect. Needed for 64 bits linux 
+dnl Check for mprotect. Needed for 64 bits linux
 AH_TEMPLATE(C_HAVE_MPROTECT,[Define to 1 if you have the mprotect function])
 AC_CHECK_HEADER([sys/mman.h], [
 AC_CHECK_FUNC([mprotect],[AC_DEFINE(C_HAVE_MPROTECT,1)])
@@ -504,7 +504,7 @@ AC_SUBST([SDL_STRING])
 AH_TEMPLATE(C_GAMELINK,[Define to 1 to enable game link headless mode])
 AC_CHECK_LIB(rt, main, have_rt_lib=yes, have_rt_lib=no , )
 AC_ARG_ENABLE(gamelink,AC_HELP_STRING([--disable-gamelink],[Disable headless game link output mode (only for SDL2)]),,enable_gamelink=yes)
-AC_MSG_CHECKING(whether gamelink is enabled) 
+AC_MSG_CHECKING(whether gamelink is enabled)
 if test x$enable_gamelink = xyes; then
   if test "x$SDL2_LIBS" = "x"; then
     AC_MSG_RESULT(no (SDL2 missing))
@@ -565,6 +565,12 @@ LDFLAGS="$LDFLAGS -L$pwd/vs/sdlnet/linux-host/lib"
 CPPFLAGS="$CPPFLAGS -I$pwd -I$pwd/vs/sdlnet/linux-host/include -I$pwd/vs/sdlnet/linux-host/include/SDL"
 CXXFLAGS="$CXXFLAGS -I$pwd -I$pwd/vs/sdlnet/linux-host/include -I$pwd/vs/sdlnet/linux-host/include/SDL"
 
+LIBS="$LIBS -lpartner"
+LDFLAGS="$LDFLAGS -L$LIBPARTNER/target/release"
+CFLAGS="$CFLAGS -I$LIBPARTNER"
+CPPFLAGS="$CPPFLAGS -I$LIBPARTNER"
+CXXFLAGS="$CXXFLAGS -I$LIBPARTNER"
+
 if test x$enable_emscripten != xyes; then
 dnl Some target detection and actions for them
 case "$host" in
@@ -577,7 +583,7 @@ case "$host" in
        AC_DEFINE(C_DIRECTSERIAL, 1, [ Define to 1 if you want serial pass-through support (Win32, Posix and OS/2).])
        ;;
     *-*-darwin*)
-       dnl We have a problem here: both Mac OS X and Darwin report 
+       dnl We have a problem here: both Mac OS X and Darwin report
        dnl the same signature "powerpc-apple-darwin*" - so we have
        dnl to do more to distinguish them.
        dnl For now I am lazy and do not add proper detection code.
@@ -613,7 +619,7 @@ case "$host" in
        dnl Disabled directserial for now. It doesn't do anything without
        dnl specifying an extra ifdef in directserial_posix.*
        dnl directserial detection should be rewritten to test for the needed
-       dnl functions and headers. I currently do not know 
+       dnl functions and headers. I currently do not know
        dnl which ones are needed for BSD
        AC_DEFINE(BSD, 1, [Compiling on BSD])
        dnl FEATURE: Whether to support direct serial port pass-through
@@ -662,7 +668,7 @@ AM_CONDITIONAL(EMSCRIPTEN, test x"$enable_emscripten" = x"yes")
 
 dnl The target cpu checks for dynamic cores
 AH_TEMPLATE(C_TARGETCPU,[The type of cpu this target has])
-AC_MSG_CHECKING(for target cpu type) 
+AC_MSG_CHECKING(for target cpu type)
 case "$host_cpu" in
   x86_64 | amd64)
     AC_DEFINE(C_TARGETCPU,X86_64)
@@ -907,17 +913,17 @@ AC_HELP_STRING([--enable-alsa-midi],[compile with alsa midi support (default yes
  no)  alsa_midi=false;;
 esac],
 [alsa_midi=true])
-if test x$alsa_midi = xtrue ; then 
+if test x$alsa_midi = xtrue ; then
   CXXFLAGS="$CXXFLAGS $ALSA_CFLAGS"
 fi
 
 dnl FEATURE: MT32 (MUNT) emulation
 AH_TEMPLATE(C_MT32,[Define to 1 to enable MT32 emulation])
 AC_ARG_ENABLE(mt32,AC_HELP_STRING([--disable-mt32],[Disable MT32 emulation]),,enable_mt32=yes)
-AC_MSG_CHECKING(whether MT32 emulation will be enabled) 
+AC_MSG_CHECKING(whether MT32 emulation will be enabled)
 
 # test
-if test x$enable_mt32 = xyes ; then 
+if test x$enable_mt32 = xyes ; then
   case "$host_cpu" in
     x86_64 | amd64)
       AC_MSG_RESULT(yes)
@@ -947,7 +953,7 @@ if test x$enable_mt32 = xyes ; then
 else
   enable_mt32=no
   AC_MSG_RESULT(no)
-fi 
+fi
 AM_CONDITIONAL(C_MT32, test "x$enable_mt32" = "xyes")
 
 dnl On some Linux platforms, std::atomic needs a helper library
@@ -992,10 +998,10 @@ AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[Enable debug mode]),[
    elif test x$curses_lib != x -a x$have_curses_h = xyes; then
      LIBS="$LIBS -l$curses_lib"
      AC_DEFINE(C_DEBUG,1)
-     if test x$enable_debug = xheavy ; then 
+     if test x$enable_debug = xheavy ; then
        AC_DEFINE(C_HEAVY_DEBUG,1)
      fi
-   else 
+   else
      AC_MSG_ERROR([Can't find curses, which is required for debug mode])
    fi
 ],)
@@ -1004,7 +1010,7 @@ dnl automake 1.14 and upwards rewrite the host to have always 64 bit unless i386
 dnl this can make building a 32 bit executable a bit tricky, as dosbox relies on the host to select the
 dnl dynamic/dynrec core
 AC_MSG_CHECKING([whether Apple user wants to override the build process to produce a 32 bit binary])
-case "$host" in 
+case "$host" in
   *-*-darwin*)
    if test x$c_targetcpu = xx86_64 -a x$c_sizep = x4 ; then
      AC_MSG_RESULT(yes)
@@ -1038,8 +1044,8 @@ fi
 dnl FEATURE: Whether to enable recompiling dynamic core
 AH_TEMPLATE(C_DYNREC,[Define to 1 to use recompiling cpu core])
 AC_ARG_ENABLE(dynrec,AC_HELP_STRING([--disable-dynrec],[Disable recompiling cpu core]),,enable_dynrec=yes)
-AC_MSG_CHECKING(whether recompiling cpu core will be enabled) 
-if test x$enable_dynrec = xno -o x$enable_dynamic_core = xno; then 
+AC_MSG_CHECKING(whether recompiling cpu core will be enabled)
+if test x$enable_dynrec = xno -o x$enable_dynamic_core = xno; then
    AC_MSG_RESULT(no)
 # test for MIPS32 is missing from this Dynamic Recompiler whitelist
 elif test x$c_targetcpu = xx86 -o x$c_targetcpu = xx86_64 -o x$c_targetcpu = xarm; then
@@ -1059,19 +1065,19 @@ fi
 dnl FEATURE: Whether to emulate the floating point unit
 AH_TEMPLATE(C_FPU,[Define to 1 to enable floating point emulation])
 AC_ARG_ENABLE(fpu,AC_HELP_STRING([--disable-fpu],[Disable fpu support]),,enable_fpu=yes)
-AC_MSG_CHECKING(whether fpu emulation will be enabled) 
-if test x$enable_fpu = xyes ; then 
+AC_MSG_CHECKING(whether fpu emulation will be enabled)
+if test x$enable_fpu = xyes ; then
   AC_MSG_RESULT(yes)
   AC_DEFINE(C_FPU,1)
-else 
+else
   AC_MSG_RESULT(no)
-fi 
+fi
 
 AH_TEMPLATE(C_FPU_X86,[Define to 1 to use a x86/x64 assembly fpu core])
 AC_ARG_ENABLE(fpu-x86,AC_HELP_STRING([--disable-fpu-x86],[Disable x86 assembly fpu core]),,enable_fpu_x86=yes)
 AC_ARG_ENABLE(fpu-x64,AC_HELP_STRING([--disable-fpu-x64],[Disable x64 assembly fpu core]),,enable_fpu_x64=yes)
-AC_MSG_CHECKING(whether the x86/x64 assembly fpu core will be enabled) 
-if test x$enable_fpu_x86 = xno -o x$enable_fpu_x64 = xno; then 
+AC_MSG_CHECKING(whether the x86/x64 assembly fpu core will be enabled)
+if test x$enable_fpu_x86 = xno -o x$enable_fpu_x64 = xno; then
    AC_MSG_RESULT(no)
 else
   if test x$enable_fpu = xyes; then
@@ -1089,8 +1095,8 @@ fi
 dnl FEATURE: Whether to enable unaligned memory access
 AH_TEMPLATE(C_UNALIGNED_MEMORY,[Define to 1 to use a unaligned memory access])
 AC_ARG_ENABLE(unaligned_memory,AC_HELP_STRING([--disable-unaligned-memory],[Disable unaligned memory access]),,enable_unaligned_memory=yes)
-AC_MSG_CHECKING(whether to enable unaligned memory access) 
-if test x$enable_unaligned_memory = xyes -a x$c_unalignedmemory = xyes; then 
+AC_MSG_CHECKING(whether to enable unaligned memory access)
+if test x$enable_unaligned_memory = xyes -a x$c_unalignedmemory = xyes; then
   AC_DEFINE(C_UNALIGNED_MEMORY,1)
   AC_MSG_RESULT(yes)
 else
@@ -1137,7 +1143,7 @@ else
   AC_DEFINE(C_MODEM,1)
   AC_DEFINE(C_IPX,1)
   have_sdl_net=yes
- else 
+ else
   AC_MSG_WARN([Can't find SDL_net, internal modem and ipx disabled])
  fi
 fi
@@ -1157,7 +1163,7 @@ AC_MSG_CHECKING([whether screenshots will be enabled])
 if test x$have_png_lib = xyes -a x$have_png_h = xyes ; then
     LIBS="$LIBS -lpng -lz"
     AC_DEFINE(C_LIBPNG,1)
-    if test x$enable_screenshots = xyes; then 
+    if test x$enable_screenshots = xyes; then
         AC_DEFINE(C_SSHOT,1)
         AC_MSG_RESULT([yes])
     else
@@ -1379,7 +1385,7 @@ fi
 
 AM_CONDITIONAL(MACOS_UNIVERSAL, [ test x$enable_universal = xyes ])
 
-AC_CONFIG_FILES([ 
+AC_CONFIG_FILES([
 Makefile
 src/Makefile
 src/cpu/Makefile

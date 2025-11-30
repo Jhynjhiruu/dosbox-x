@@ -489,8 +489,51 @@ void log_io(Bitu width, bool write, Bitu port, Bitu val) {
 #define log_io(W, X, Y, Z)
 #endif
 
+#include "partner.hpp"
+
+void partner_write_addr(uint8_t addr) {
+    LOG(LOG_IO,LOG_WARN)("partner addr %02X", addr);
+    partner_addr = addr;
+}
+
+void partner_write_data(uint8_t data) {
+    LOG(LOG_IO,LOG_WARN)("partner data %02X", data);
+    if (comms != NULL) {
+        comms_write(comms, partner_addr, data);
+    } else {
+        LOG(LOG_IO,LOG_WARN)("comms is NULL (init failed?)");
+    }
+}
+
+uint8_t partner_read_data(void) {
+    if (comms != NULL) {
+        uint8_t data;
+        comms_read(comms, partner_addr, &data);
+        return data;
+    } else {
+        LOG(LOG_IO,LOG_WARN)("comms is NULL (init failed?)");
+        return 0;
+    }
+}
+
+void partner_write_both(uint16_t data) {
+    if (comms != NULL) {
+        partner_write_addr((uint8_t)(data & 0xFF));
+        partner_write_data((uint8_t)(data >> 8));
+    } else {
+        LOG(LOG_IO,LOG_WARN)("comms is NULL (init failed?)");
+    }
+}
 
 void IO_WriteB(Bitu port,uint8_t val) {
+    if (port == 0x322) {
+        partner_write_addr(val);
+        return;
+    } else if (port == 0x323) {
+        partner_write_data(val);
+        return;
+    }
+
 	log_io(0, true, port, val);
 	if (GCC_UNLIKELY(GETFLAG(VM) && (CPU_IO_Exception(port,1)))) {
 		CPU_ForceV86FakeIO_Out(port,val,1);
@@ -502,6 +545,11 @@ void IO_WriteB(Bitu port,uint8_t val) {
 }
 
 void IO_WriteW(Bitu port,uint16_t val) {
+    if (port == 0x322) {
+        partner_write_both(val);
+        return;
+    }
+
 	log_io(1, true, port, val);
 	if (GCC_UNLIKELY(GETFLAG(VM) && (CPU_IO_Exception(port,2)))) {
 		CPU_ForceV86FakeIO_Out(port,val,2);
@@ -524,6 +572,10 @@ void IO_WriteD(Bitu port,uint32_t val) {
 }
 
 uint8_t IO_ReadB(Bitu port) {
+    if (port == 0x323) {
+        return partner_read_data();
+    }
+
 	uint8_t retval;
 	if (GCC_UNLIKELY(GETFLAG(VM) && (CPU_IO_Exception(port,1)))) {
 		return (uint8_t)CPU_ForceV86FakeIO_In(port,1);
